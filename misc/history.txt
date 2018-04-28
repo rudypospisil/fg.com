@@ -1,0 +1,165 @@
+CENTOS LOCATIONS
+- /etc/php.ini              -> php.ini. 
+- /var/www/public/          -> for the world. (originally /html but I changed it in the httpd conf file. "public" is a more intuitive name, IMHO.)
+- /var/www/                 -> support for world, non-public access.
+- /var/www/application/     -> the guts of the application. All views/models/controllers found here.
+
+Avahi Daemon
+Type "/sbin/service avahi-daemon stop" into the terminal and press Enter to stop Avahi-daemon if it's running.
+Type "/sbin/chkconfig avahi-daemon off" into the terminal and press Enter to disable the Avahi-daemon from automatically starting.
+
+Linux version:
+lsb_release -irc
+
+HISTORY
+201302 - Installed CI framework.
+...jump ahead...no like CI...
+
+20130220 
+  - Installed Laravel framework.
+
+20130223
+  - Laravel up to speed.
+  - Tracked down ldap module problem. The .so is being loaded twice - once in php.ini and once in /etc/php.d/ldap.ini. I commented out the /etc/php.ini.
+  - Login page created and set up to route properly.
+  - Created the ldap authentication as a autoload library. No longer a model. Much better.
+  - Table of contents created.
+  - Masthead include created.
+  - changed /var/www/html/ to /var/www/public/. Makes more sense. The public folder only contains the assets, styles, and scripts. Everything else is one branch up, therefore protected from the public.
+  - I'm liking Laravel, FYI.
+
+20120301
+  — built pagination logic for open requests.
+    - number of total rows and current position echoed
+    - previous/forward buttons established.
+    - ability to view all implemented.
+    - dropdown menu allowing user to quick jump to any page implemented.
+  - all columns now sortable by clicking on header.
+    - sorting choice is maintained through all user movements until user changes it.
+  — built skeleton for View as Batches mode.
+  — refined LDAP authentication. Authenticates against either CN or UPN. The AD is then queried and the user's CN and email are returned. Attribute needs to be created for pisprivileges. 
+  — logins are now historical.
+  — history table begun for open request edits.
+  — Admin/Manager/Contributer debug mode created. 
+  — "Other Angle" field created.
+  
+20130315
+  — installed Imagick. (don't load module in php.ini - it is compiled in the binary.)
+  — installed Pear in order to obtain PECL.
+  — installed devel tools.  
+  
+20130401
+  - modified LDAP authentication. User only needs to enter in their SAM Account Name.
+
+20130407
+  - wrote LDAP search tool. (http://172.16.1.29/tools/toggle.php to grant access, and then http://172.16.1.29/tools/searchLdap.php to execute search)
+  - updated new request form per FG.
+    - removed 'reference', 'misc', 'photographer', 'shoot date'
+    - 'photographer', 'shoot date' insert 'TBD' into db. These will be updated later by the user.
+  — rewrote db inserts so that each request is now broken down into individual requests per angle. Still maintaining batch no.
+  - updated open request module to reflect single angle/single request.  
+  
+20130410
+  - began Admin Panel module.
+    - status codes now editable.
+    - app specs now editable.
+  - began library module.
+    - product detail page skeleton created.
+  - modified editing pages to reflect separate angles.  
+  
+20130420
+  - added angles admin panel
+  - began filter functionality. I created a PHP function that returns a JSON string when an AJAX called is made. JavaScript takes the return and builds an array. More to come.
+  - began work on creating two separate imaging utilities. one is fed current completed jobs, the other is a standalone.  
+  - wrote error checks to allow deprecated admin data to persist in the db-fed dropdown menus. (good logic, pat on back.)  
+  
+20130426
+  - set up filestore.
+  - wrote file uploading code.
+  
+20130501
+  - add  
+  - refactored the admin update/add/delete function into three generic functions.
+  
+ 
+20130516
+  - installed SOAP ('#yum install php-soap').
+ 
+20130611
+  - wrote NAV query 
+ 
+20130618
+  - set up pull_nav_data task that will empty the local NAV table and update it with NAV data once every 24 hours.
+  Terminal command:
+  /usr/bin/php /var/www/artisan pull_nav_data
+  The above command will call on Artisan to run the task found in the pull_nav_data.php file.
+  Set Cron Job:
+  crontab -e
+  MAILTO="rudypospisil@gmail.com"
+  1 * * * * /usr/bin/php /var/www/artisan pull_nav_data
+  
+  
+MISC
+ - Con <framework> pienso qué es lo que quiero y no como escribirlo. -Enrique Lopez
+    This pretty much sums up why I am on the fence.
+    
+    
+    
+    
+    
+    
+    
+SQL
+
+INSERT INTO  `pis`.`app_specs` (
+`id` ,
+`application` ,
+`name_formula` ,
+`file_location` ,
+`width` ,
+`height` ,
+`type` ,
+`time_created`
+)
+VALUES 
+(NULL, 'Navision', '$itemNo', '\\\\fgifs\\prodimg\\JPG', '178', '134', 'jpg', CURRENT_TIMESTAMP), 
+(NULL, 'AS400', '$itemNo', '\\\\fgifs\\prodimg\\JPG', '178', '134', 'jpg', CURRENT_TIMESTAMP),
+(NULL, 'B2B (Current)', '$itemNo', '\\\\fgifs\\prodimg\\JPG', '178', '134', 'jpg', CURRENT_TIMESTAMP),
+(NULL, 'B2B (Future, Default for Style)', '$itemNo,-,$styleNo,-,$setCode,-,$angle', '\\\\fgirepo\\transfer\\b2b\$brand', '', '', 'jpg', CURRENT_TIMESTAMP),
+(NULL, 'B2B (Future)', '$itemno,-,$angle', '\\\\fgirepo\\transfer\\b2b\$brand', '', '', 'jpg', CURRENT_TIMESTAMP),
+(NULL, 'Triton B2C', '', '', '', '', 'jpg', CURRENT_TIMESTAMP),
+(NULL, 'Diana B2C', '', '', '', '', 'jpg', CURRENT_TIMESTAMP),
+(NULL, 'ArtCarved B2C', '', '', '', '', 'jpg', CURRENT_TIMESTAMP),
+(NULL, 'ArtCarved App', '', '', '', '', 'jpg', CURRENT_TIMESTAMP),
+(NULL, 'Goldman App - Default for Style', '$pt,-,$styleNo,-,$setCode,-,$angle', '\\fgirepo\transfer\b2b\goldman', '', '', 'jpg', CURRENT_TIMESTAMP),
+(NULL, 'Goldman App', '$itemNo,-,$angle', '\\fgirepo\transfer\b2b\goldman', '', '', 'jpg', CURRENT_TIMESTAMP)
+;
+
+ALTER TABLE  `permissions` ADD  `submitted` VARCHAR( 8 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL ,
+ADD  `status` VARCHAR( 8 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL ,
+ADD  `due_date` VARCHAR( 8 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL ,
+ADD  `item_no` VARCHAR( 8 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL ,
+ADD  `style_no` VARCHAR( 8 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL ,
+ADD  `brand` VARCHAR( 8 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL ,
+ADD  `angle` VARCHAR( 8 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL ,
+ADD  `type` VARCHAR( 8 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL ,
+ADD  `customer` VARCHAR( 8 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL
+;
+
+
+NAV XML
+
+<?xml version="1.0"?>
+-<definitions xmlns:tns="urn:microsoft-dynamics-schemas/codeunit/PIS" xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="urn:microsoft-dynamics-schemas/codeunit/PIS">-<types>-<schema xmlns:tns="urn:microsoft-dynamics-nav/xmlports/x50017" xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:microsoft-dynamics-nav/xmlports/x50017" elementFormDefault="qualified">-<complexType name="CostCalculationHeaderType">-<sequence><element name="ItemNo" type="string" maxOccurs="1" minOccurs="1"/><element name="CollectionCode" type="string" maxOccurs="1" minOccurs="1"/><element name="ProductGroupCode" type="string" maxOccurs="1" minOccurs="1"/><element name="StyleNo" type="string" maxOccurs="1" minOccurs="1"/><element name="GenderCode" type="string" maxOccurs="1" minOccurs="1"/></sequence></complexType>-<complexType name="CostCalculationHeader" mixed="true">-<sequence><element name="CostCalculationHeader" type="tns:CostCalculationHeaderType" maxOccurs="unbounded" minOccurs="1"/></sequence></complexType><element name="CostCalculationHeader" type="tns:CostCalculationHeader"/></schema>-<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:microsoft-dynamics-schemas/codeunit/PIS" elementFormDefault="qualified">-<element name="GoldManAppPIS">-<complexType>-<sequence><element name="goldmanAppPISXML" type="q1:CostCalculationHeader" maxOccurs="1" minOccurs="1" xmlns:q1="urn:microsoft-dynamics-nav/xmlports/x50017"/></sequence></complexType></element>-<element name="GoldManAppPIS_Result">-<complexType>-<sequence><element name="goldmanAppPISXML" type="q2:CostCalculationHeader" maxOccurs="1" minOccurs="1" xmlns:q2="urn:microsoft-dynamics-nav/xmlports/x50017"/></sequence></complexType></element></schema></types>-<message name="GoldManAppPIS"><part name="parameters" element="tns:GoldManAppPIS"/></message>-<message name="GoldManAppPIS_Result"><part name="parameters" element="tns:GoldManAppPIS_Result"/></message>-<portType name="PIS_Port">-<operation name="GoldManAppPIS"><input name="GoldManAppPIS" message="tns:GoldManAppPIS"/><output name="GoldManAppPIS_Result" message="tns:GoldManAppPIS_Result"/></operation></portType>-<binding name="PIS_Binding" type="tns:PIS_Port"><binding xmlns="http://schemas.xmlsoap.org/wsdl/soap/" transport="http://schemas.xmlsoap.org/soap/http"/>-<operation name="GoldManAppPIS"><operation xmlns="http://schemas.xmlsoap.org/wsdl/soap/" style="document" soapAction="urn:microsoft-dynamics-schemas/codeunit/PIS:GoldManAppPIS"/>-<input name="GoldManAppPIS"><body xmlns="http://schemas.xmlsoap.org/wsdl/soap/" use="literal"/></input>-<output name="GoldManAppPIS_Result"><body xmlns="http://schemas.xmlsoap.org/wsdl/soap/" use="literal"/></output></operation></binding>-<service name="PIS">-<port name="PIS_Port" binding="tns:PIS_Binding"><address xmlns="http://schemas.xmlsoap.org/wsdl/soap/" location="http://fgi-dev-sql.fgoldman.com:7047/DynamicsNAV/WS/TEST-FGI/Codeunit/PIS"/></port></service></definitions>
+
+Nav Table
+CREATE TABLE IF NOT EXISTS `nav` (
+  `id` int(16) NOT NULL AUTO_INCREMENT,
+  `item_no` varchar(64) COLLATE utf8_bin NOT NULL,
+  `collection_code` varchar(32) COLLATE utf8_bin NOT NULL,
+  `product_group_code` varchar(4) COLLATE utf8_bin NOT NULL,
+  `style_no` varchar(16) COLLATE utf8_bin NOT NULL,
+  `gender_code` varchar(2) COLLATE utf8_bin NOT NULL,
+  `timestamp_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Holds the data queried nightly from the NAV.' AUTO_INCREMENT=37565 ;
